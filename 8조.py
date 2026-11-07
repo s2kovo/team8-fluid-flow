@@ -277,7 +277,7 @@ def draw_sensitivity(rows, xlabel, title):
     ys = [float("nan") if r["추천 내경 (mm)"] is None else r["추천 내경 (mm)"] for r in rows]
     ax.step(xs, ys, where="post", linewidth=2)
     ax.scatter(xs, ys, s=15)
-    ax.set(xlabel=xlabel, ylabel="Minimum eligible Sch 40 inside diameter (mm)", title=title)
+    ax.set(xlabel=xlabel, ylabel="Minimum feasible Sch 40 pipe ID (mm)", title=title)
     ax.grid(True, alpha=0.3)
     st.pyplot(fig)
     plt.close(fig)
@@ -604,9 +604,9 @@ with tab_sensitivity:
         else:
             try:
                 ranges = {
-                    "head": (head_min, head_max, "Available elevation difference (m)", "Available head vs recommended pipe"),
-                    "flow": (flow_min, flow_max, "Target flow (L/s)", "Target flow vs recommended pipe"),
-                    "length": (length_min, length_max, "Pipe length (m)", "Pipe length vs recommended pipe"),
+                    "head": (head_min, head_max, "Available elevation difference (m)", "Available head vs minimum feasible pipe ID"),
+                    "flow": (flow_min, flow_max, "Target flow (L/s)", "Target flow vs minimum feasible pipe ID"),
+                    "length": (length_min, length_max, "Pipe length (m)", "Pipe length vs minimum feasible pipe ID"),
                 }
                 all_rows = {}
                 for var, (lo, hi, _, _) in ranges.items():
@@ -625,9 +625,9 @@ with tab_sensitivity:
         if st.session_state["sensitivity_settings"] != current_settings:
             st.warning("입력값이 변경되었습니다. 최신 조건을 반영하려면 다시 실행하세요.")
         for var, label, xlabel, title in (
-            ("head", "① 허용 고도차 변화", "Available elevation difference (m)", "Available head vs recommended pipe"),
-            ("flow", "② 목표 유량 변화", "Target flow (L/s)", "Target flow vs recommended pipe"),
-            ("length", "③ 배관 길이 변화", "Pipe length (m)", "Pipe length vs recommended pipe"),
+            ("head", "① 허용 고도차 변화", "Available elevation difference (m)", "Available head vs minimum feasible pipe ID"),
+            ("flow", "② 목표 유량 변화", "Target flow (L/s)", "Target flow vs minimum feasible pipe ID"),
+            ("length", "③ 배관 길이 변화", "Pipe length (m)", "Pipe length vs minimum feasible pipe ID"),
         ):
             rows = st.session_state["sensitivity_results"][var]
             st.markdown(f"#### {label}")
