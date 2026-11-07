@@ -285,6 +285,47 @@ def draw_sensitivity(rows, xlabel, title):
         st.info("그래프의 빈 구간은 선택된 표준관경 중 설계조건을 만족하는 관경이 없는 경우입니다.")
 
 
+# ASME B36.10M Schedule 40 / 40S nominal sizes: reference inner diameters.
+# Values below are representative dimensions; check vendor tolerances before procurement.
+SCH40_INNER_DIAMETERS_MM = {
+    "1/2 in (DN15)": 15.80,
+    "3/4 in (DN20)": 20.93,
+    "1 in (DN25)": 26.64,
+    "1-1/4 in (DN32)": 35.05,
+    "1-1/2 in (DN40)": 40.89,
+    "2 in (DN50)": 52.50,
+    "2-1/2 in (DN65)": 62.71,
+    "3 in (DN80)": 77.93,
+    "4 in (DN100)": 102.26,
+}
+
+
+def compare_standard_pipes(q_target, max_head, max_velocity, selected, base_params):
+    """Return hydraulic comparisons and eligible options for selected standard IDs."""
+    results = []
+    for name in selected:
+        diameter_mm = SCH40_INNER_DIAMETERS_MM[name]
+        r = solve_inverse(q_target, {**base_params, "D": diameter_mm / 1000.0})
+        head_ok = r["delta_z_required"] <= max_head + 1e-9
+        velocity_ok = r["V"] <= max_velocity + 1e-9
+        results.append({
+            "표준관경": name,
+            "내경 D (mm)": diameter_mm,
+            "필요 Δz (m)": r["delta_z_required"],
+            "유속 V (m/s)": r["V"],
+            "Re": r["Re"],
+            "유동영역": r["regime"],
+            "Darcy f": r["f"],
+            "주손실 (m)": r["h_major"],
+            "부차손실 (m)": r["h_minor"],
+            "고도차 충족": head_ok,
+            "유속 조건 충족": velocity_ok,
+            "최종 판정": "충족" if head_ok and velocity_ok else "미충족",
+        })
+    return sorted(results, key=lambda row: row["내경 D (mm)"])
+
+
+
 # ============================================================
 # Streamlit 웹 화면: 계산 함수 정의가 모두 끝난 다음에 배치
 # ============================================================
@@ -418,45 +459,6 @@ with tab_sweep:
             st.dataframe(rows, use_container_width=True)
         except Exception as e:
             st.error(str(e))
-
-# ASME B36.10M Schedule 40 / 40S nominal sizes: reference inner diameters.
-# Values below are representative dimensions; check vendor tolerances before procurement.
-SCH40_INNER_DIAMETERS_MM = {
-    "1/2 in (DN15)": 15.80,
-    "3/4 in (DN20)": 20.93,
-    "1 in (DN25)": 26.64,
-    "1-1/4 in (DN32)": 35.05,
-    "1-1/2 in (DN40)": 40.89,
-    "2 in (DN50)": 52.50,
-    "2-1/2 in (DN65)": 62.71,
-    "3 in (DN80)": 77.93,
-    "4 in (DN100)": 102.26,
-}
-
-
-def compare_standard_pipes(q_target, max_head, max_velocity, selected, base_params):
-    """Return hydraulic comparisons and eligible options for selected standard IDs."""
-    results = []
-    for name in selected:
-        diameter_mm = SCH40_INNER_DIAMETERS_MM[name]
-        r = solve_inverse(q_target, {**base_params, "D": diameter_mm / 1000.0})
-        head_ok = r["delta_z_required"] <= max_head + 1e-9
-        velocity_ok = r["V"] <= max_velocity + 1e-9
-        results.append({
-            "표준관경": name,
-            "내경 D (mm)": diameter_mm,
-            "필요 Δz (m)": r["delta_z_required"],
-            "유속 V (m/s)": r["V"],
-            "Re": r["Re"],
-            "유동영역": r["regime"],
-            "Darcy f": r["f"],
-            "주손실 (m)": r["h_major"],
-            "부차손실 (m)": r["h_minor"],
-            "고도차 충족": head_ok,
-            "유속 조건 충족": velocity_ok,
-            "최종 판정": "충족" if head_ok and velocity_ok else "미충족",
-        })
-    return sorted(results, key=lambda row: row["내경 D (mm)"])
 
 
 with tab_design:
