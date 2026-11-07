@@ -277,7 +277,7 @@ def draw_sensitivity(rows, xlabel, title):
     ys = [float("nan") if r["추천 내경 (mm)"] is None else r["추천 내경 (mm)"] for r in rows]
     ax.step(xs, ys, where="post", linewidth=2)
     ax.scatter(xs, ys, s=15)
-    ax.set(xlabel=xlabel, ylabel="Minimum eligible Sch40 inside diameter (mm)", title=title)
+    ax.set(xlabel=xlabel, ylabel="Minimum eligible Sch 40 inside diameter (mm)", title=title)
     ax.grid(True, alpha=0.3)
     st.pyplot(fig)
     plt.close(fig)
@@ -288,15 +288,15 @@ def draw_sensitivity(rows, xlabel, title):
 # ASME B36.10M Schedule 40 / 40S nominal sizes: reference inner diameters.
 # Values below are representative dimensions; check vendor tolerances before procurement.
 SCH40_INNER_DIAMETERS_MM = {
-    "1/2 in (DN15)": 15.80,
-    "3/4 in (DN20)": 20.93,
-    "1 in (DN25)": 26.64,
-    "1-1/4 in (DN32)": 35.05,
-    "1-1/2 in (DN40)": 40.89,
-    "2 in (DN50)": 52.50,
-    "2-1/2 in (DN65)": 62.71,
-    "3 in (DN80)": 77.93,
-    "4 in (DN100)": 102.26,
+    "1/2 in Sch 40 (DN15)": 15.80,
+    "3/4 in Sch 40 (DN20)": 20.93,
+    "1 in Sch 40 (DN25)": 26.64,
+    "1-1/4 in Sch 40 (DN32)": 35.05,
+    "1-1/2 in Sch 40 (DN40)": 40.89,
+    "2 in Sch 40 (DN50)": 52.50,
+    "2-1/2 in Sch 40 (DN65)": 62.71,
+    "3 in Sch 40 (DN80)": 77.93,
+    "4 in Sch 40 (DN100)": 102.26,
 }
 
 
@@ -407,7 +407,7 @@ with tab_roundtrip:
     st.write("각 표준관경에서 목표 유량으로 필요 고도차를 계산한 뒤, 동일한 조건의 정방향 계산에 다시 대입합니다.")
     check_q_ls = st.number_input("재검증 목표 유량 (L/s)", min_value=0.001, value=1.30,
                                  step=0.10, format="%.3f", key="roundtrip_q")
-    check_selected = st.multiselect("재검증할 Sch40 표준관경", list(SCH40_INNER_DIAMETERS_MM),
+    check_selected = st.multiselect("재검증할 Sch 40 표준관경", list(SCH40_INNER_DIAMETERS_MM),
                                     default=list(SCH40_INNER_DIAMETERS_MM), key="roundtrip_pipes")
     st.caption("밀도·점도·길이·조도·ΣK는 사이드바 조건을 사용합니다. 동일 계산식을 이용한 수치적 일관성 검증입니다.")
     if st.button("표준관경별 정·역방향 재검증 실행", type="primary", key="roundtrip_run"):
@@ -579,7 +579,7 @@ with tab_sensitivity:
         sens_count = st.number_input("변수별 계산 조건 수", min_value=20, max_value=100,
                                      value=20, step=1, key="sens_count")
     with c:
-        sens_selected = st.multiselect("분석할 Sch40 표준관경", list(SCH40_INNER_DIAMETERS_MM),
+        sens_selected = st.multiselect("분석할 Sch 40 표준관경", list(SCH40_INNER_DIAMETERS_MM),
                                        default=list(SCH40_INNER_DIAMETERS_MM), key="sens_pipes")
     st.caption("기준 배관 길이는 사이드바 L을 사용하며, 한 번에 하나의 변수만 바꾸는 OFAT 민감도 분석입니다.")
     st.markdown("#### 변수별 탐색 범위")
@@ -642,7 +642,7 @@ with tab_sensitivity:
                 writer.writerow({"변화 변수": var, **row})
         st.download_button("민감도 분석 결과 CSV 다운로드", buf.getvalue().encode("utf-8-sig"),
                            "team7_design_sensitivity.csv", "text/csv")
-        st.caption("추천 기준: 허용 고도차와 유속 제한을 모두 만족하는 가장 작은 Sch40 내경. 비용 최적화는 포함하지 않습니다.")
+        st.caption("추천 기준: 허용 고도차와 유속 제한을 모두 만족하는 가장 작은 Sch 40 내경. 비용 최적화는 포함하지 않습니다.")
 
 
 with tab_validation:
